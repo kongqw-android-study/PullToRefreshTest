@@ -17,6 +17,8 @@
         </activity>
         <activity android:name=".activity.RetractableViewActivity">
         </activity>
+        <activity android:name=".activity.RefreshableViewActivity">
+        </activity>
     </application>
 
 </manifest>
