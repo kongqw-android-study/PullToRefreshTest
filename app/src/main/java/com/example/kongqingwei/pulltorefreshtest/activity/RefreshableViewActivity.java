@@ -19,5 +19,6 @@ public class RefreshableViewActivity extends AppCompatActivity {
 
         mListView = (ListView) findViewById(R.id.list_view);
         mListView.setAdapter(new ListViewAdapter(getApplicationContext()));
+
     }
 }
