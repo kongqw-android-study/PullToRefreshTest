@@ -6,6 +6,7 @@
     android:layout_height="match_parent">
 
     <com.example.kongqingwei.pulltorefreshtest.view.RefreshableView
+        android:id="@+id/refreshableView"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -16,13 +17,4 @@
 
     </com.example.kongqingwei.pulltorefreshtest.view.RefreshableView>
 
-    <!--<com.example.kongqingwei.pulltorefreshtest.guolin.RefreshableView-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:id="@+id/refreshable_view"-->
-        <!--android:layout_height="match_parent">-->
-        <!--<ListView-->
-            <!--android:id="@+id/list_view"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"/>-->
-    <!--</com.example.kongqingwei.pulltorefreshtest.guolin.RefreshableView>-->
 </RelativeLayout>

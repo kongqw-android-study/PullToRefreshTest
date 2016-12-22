@@ -42,6 +42,8 @@ public class RefreshableView extends LinearLayout implements View.OnTouchListene
     private ImageView mImageViewArrow;
     private TextView mTextViewTip;
 
+    private OnPullRefreshListener mOnPullRefreshListener;
+
     public RefreshableView(Context context) {
         super(context);
         initView(context);
@@ -121,6 +123,7 @@ public class RefreshableView extends LinearLayout implements View.OnTouchListene
                 case MotionEvent.ACTION_MOVE:
                     float yMove = event.getRawY();
                     int distance = (int) (yMove - yDown);
+
                     if (distance <= 0 && headerLayoutParams.topMargin <= hideHeaderHeight) {
                         return false;
                     }
@@ -137,12 +140,27 @@ public class RefreshableView extends LinearLayout implements View.OnTouchListene
                     header.setLayoutParams(headerLayoutParams);
                     break;
                 case MotionEvent.ACTION_UP:
-                    // showTip("ACTION_UP");
-                    if (headerLayoutParams.topMargin != hideHeaderHeight) {
-                        headerLayoutParams.topMargin = hideHeaderHeight;
-                        header.setLayoutParams(headerLayoutParams);
+
+                    if (mStatus == STATUS_PULL_TO_REFRESH) {
+                        // 下拉刷新状态松手 恢复到初始状态
+                        if (headerLayoutParams.topMargin != hideHeaderHeight) {
+                            headerLayoutParams.topMargin = hideHeaderHeight;
+                            header.setLayoutParams(headerLayoutParams);
+                        }
+                    } else if (mStatus == STATUS_RELEASE_TO_REFRESH) {
+                        // 释放刷新
+                        if (headerLayoutParams.topMargin != 0) {
+                            headerLayoutParams.topMargin = 0;
+                            header.setLayoutParams(headerLayoutParams);
+                        }
+                        // 正在刷新状态
+                        mStatus = STATUS_REFRESHING;
+                        // 回调刷新接口
+                        if (null != mOnPullRefreshListener) {
+                            mOnPullRefreshListener.onPullRefresh();
+                        }
                     }
-                    mStatus = STATUS_NONE;
+
                     break;
                 default:
                     break;
@@ -212,6 +230,11 @@ public class RefreshableView extends LinearLayout implements View.OnTouchListene
                     mTextViewTip.setText("释放立即刷新");
                     break;
                 case STATUS_REFRESHING: // 正在刷新
+                    if (GONE != mImageViewArrow.getVisibility()) {
+                        mImageViewArrow.clearAnimation();
+                        mImageViewArrow.setVisibility(GONE);
+                    }
+                    mTextViewTip.setText("正在刷新...");
                     break;
                 case STATUS_REFRESH_FINISHED: // 刷新完成
                     break;
@@ -243,6 +266,34 @@ public class RefreshableView extends LinearLayout implements View.OnTouchListene
         animation.setDuration(100);
         animation.setFillAfter(true);
         arrow.startAnimation(animation);
+    }
+
+    /**
+     * 添加下拉刷新的监听
+     *
+     * @param listener 监听接口
+     */
+    public void addOnPullRefreshListener(OnPullRefreshListener listener) {
+        mOnPullRefreshListener = listener;
+    }
+
+    /**
+     * 刷新完成 恢复初始状态
+     */
+    public void onComplete() {
+        mStatus = STATUS_REFRESH_FINISHED;
+        // 刷新完成 恢复初始状态
+        if (headerLayoutParams.topMargin != hideHeaderHeight) {
+            headerLayoutParams.topMargin = hideHeaderHeight;
+            header.setLayoutParams(headerLayoutParams);
+        }
+    }
+
+    /**
+     * 下拉刷新回调接口
+     */
+    public interface OnPullRefreshListener {
+        void onPullRefresh();
     }
 
 }
